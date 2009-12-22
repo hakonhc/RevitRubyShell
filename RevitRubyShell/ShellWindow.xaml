@@ -1,0 +1,51 @@
+﻿<Window x:Class="RevitRubyShell.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RevitRubyShell" Height="500" Width="780" FontSize="12">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="0"/>
+        </Grid.RowDefinitions>
+        <StackPanel x:Name="_canvasControls" Margin="0,0,0,0" Grid.Row="0" Orientation="Horizontal">
+        </StackPanel>
+        <GridSplitter x:Name="_editorToggle" ResizeDirection="Columns" Grid.RowSpan="4" Width="6" Background="#00ffffff" />
+        <TabControl x:Name="_tabs" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="0,0,0,0" >
+            <TabItem Header="Interactive">
+                <TextBox FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" />
+            </TabItem>
+            <TabItem Header="History">
+                <TextBox FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_history" FontSize="12" IsReadOnly="True" />
+            </TabItem>
+            <TabItem Header="About">
+                <RichTextBox FontFamily="Calibri" FontSize="12" IsReadOnly="True" IsDocumentEnabled="True" VerticalScrollBarVisibility="Auto">
+                    <FlowDocument>
+                        <Paragraph>
+                            <Run FontSize="18" FontWeight="Bold">RevitRubyShell</Run>
+                            <LineBreak />
+                            <Run FontStyle="Italic">xxs</Run>
+                        </Paragraph>
+                        <Paragraph>
+                            xxxx                          
+                        </Paragraph>                        
+                    </FlowDocument>
+                </RichTextBox>
+            </TabItem>
+        </TabControl>
+        <GridSplitter x:Name="_consoleSplitter" 
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                      Grid.Column="1" Grid.Row="2" Width="Auto" Height="6" Background="#00ffffff"
+                      ResizeDirection="Rows" />
+        <TextBox Grid.Row="3" Grid.Column="1" TextWrapping="WrapWithOverflow"
+                VerticalScrollBarVisibility="Auto"
+                Name="_output" FontFamily="Consolas" FontSize="12" IsReadOnly="True" />
+        <StackPanel x:Name="_outputControls" Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+        </StackPanel>
+    </Grid>
+</Window>
