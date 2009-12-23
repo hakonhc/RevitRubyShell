@@ -59,7 +59,7 @@ namespace RevitRubyShell
 # All Ruby code typed here can be run by pressing
 # Ctrl-Enter. If you don't want to run everything,
 # just select the text you wan to run and press
-# the same key combination. Ctrl-C will empty the output.
+# the same key combination. Ctrl-W will clear the output.
 
 # You can use the special __revit__ variable to get hold of the Application object
 
@@ -128,9 +128,8 @@ namespace RevitRubyShell
                     _isCtrlPressed = true;
                 if (_isCtrlPressed && args.Key == Key.Enter)
                     RunCode(_code);
-                if (_isCtrlPressed && args.Key == Key.C)
-                    Output.Clear();                   
-                    
+                if (_isCtrlPressed && args.Key == Key.W)
+                    Output.Clear();                    
             };
             _code.KeyUp += (se, args) =>
             {
