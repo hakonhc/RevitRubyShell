@@ -67,7 +67,13 @@ namespace RevitRubyShell
 # Try the following; it will print to the output
 # window below the code:
 
-10.times{|i| puts i * i}
+require 'RevitAPI'
+include Autodesk::Revit
+include Autodesk::Revit::Elements
+__revit__.active_document.elements(Room.to_clr_type, arr = ElementArray.new)
+arr.each do |room|
+  puts room.name
+end
 ";
                 #endregion
 
