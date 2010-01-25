@@ -18,6 +18,7 @@ using System.Diagnostics;
 using SThread = System.Threading;
 using Microsoft.Scripting.Hosting;
 using IronRuby;
+using System.Xml.Linq;
 
 namespace RevitRubyShell
 {
@@ -38,53 +39,31 @@ namespace RevitRubyShell
         public TextBox History { get { return _history; } }
         public TextBox Output { get { return _output; } }
         public TextBox Code { get { return _code; } }
-        public StackPanel CanvasControls { get { return _canvasControls; } }
-        public StackPanel OutputControls { get { return _outputControls; } }
         public GridSplitter EditorToggle { get { return _editorToggle; } }
         public GridSplitter ConsoleSplitter { get { return _consoleSplitter; } }
+        public ToolBar CommandToolbar { get { return cmdToolbar; } }
         #endregion
 
         private readonly Autodesk.Revit.Application _application;
+        private string filename;
 
-        public ShellWindow(Autodesk.Revit.Application app)
+        public ShellWindow(ExternalCommandData data)
         {
             InitializeComponent();
-            _application = app;
+            _application = data.Application;
 
             this.Loaded += (s, e) =>
             {
-                #region Wecome Text
-                _code.Text = @"# Welcome to Ruby Shell!
-
-# All Ruby code typed here can be run by pressing
-# Ctrl-Enter. If you don't want to run everything,
-# just select the text you wan to run and press
-# the same key combination. Ctrl-W will clear the output.
-
-# You can use the special __revit__ variable to get hold of the Application object
-
-# This is nothing more than a Ruby interpreter:
-# Try the following; it will print to the output
-# window below the code:
-
-require 'RevitAPI'
-include Autodesk::Revit
-include Autodesk::Revit::Elements
-__revit__.active_document.elements(Room.to_clr_type, arr = ElementArray.new)
-arr.each do |room|
-  puts room.name
-end
-";
-                #endregion
-
+                var defaultScripts = GetSettings().Root.Descendants("DefaultScript");
+                _code.Text = defaultScripts.Count() > 0 ? defaultScripts.First().Value.Replace("\n", "\r\n") : "";
                 OutputBuffer = new TextBoxBuffer(_output);
 
                 // Initialize IronRuby
-
                 _rubyEngine = Ruby.CreateEngine();
                 _rubyContext = Ruby.GetExecutionContext(_rubyEngine);
                 _scope = _rubyEngine.CreateScope();
                 _scope.SetVariable("__revit__", _application);
+                _scope.SetVariable("__data__", data);
 
                 // Cute little trick: warm up the Ruby engine by running some code on another thread:
                 new SThread.Thread(new SThread.ThreadStart(() => _rubyEngine.Execute("2 + 2", _scope))).Start();
@@ -93,7 +72,43 @@ end
                 _rubyContext.StandardOutput = OutputBuffer;
 
                 KeyBindings();
+                LoadCommands();
             };
+        }
+
+
+        private void LoadCommands()
+        {
+            foreach (var commandNode in GetSettings().Root.Descendants("Command"))
+            {
+
+                var button = new Button();                
+                button.Tag = commandNode.Attribute("src").Value;
+                button.Content = commandNode.Attribute("name").Value;
+                button.Click += CommandClicked;
+                CommandToolbar.Items.Add(button);
+            }
+        }
+
+        void CommandClicked(object sender, EventArgs e)
+        {
+            string source;
+            try
+            {
+                var commandSrc = (string)(((Button)sender).Tag);
+                using (var reader = File.OpenText(commandSrc))
+                    source = reader.ReadToEnd();
+                var paths = new List<string>();
+                foreach (var s in _rubyEngine.GetSearchPaths())
+                    paths.Add(s);
+                paths.Add(System.IO.Path.GetDirectoryName(commandSrc));
+                _rubyEngine.SetSearchPaths(paths);
+                ExecuteCode(source);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), ex.Message);
+            }            
         }
 
         /// <summary>
@@ -101,14 +116,19 @@ end
         /// just runs the selection.
         /// </summary>
         /// <param name="t"></param>
-        public void RunCode(TextBox t)
+        public void RunCode()
         {
-            string code = t.SelectionLength > 0 ? t.SelectedText : t.Text;
+            string code = _code.SelectionLength > 0 ? _code.SelectedText : _code.Text;
+            ExecuteCode(code); 
+        }
+
+        private void ExecuteCode(string code)
+        {
             try
             {
                 // Run the code
                 var result = _rubyEngine.Execute(code, _scope);
-             
+
                 // write the result to the output window
                 var output = string.Format("=> {0}\n", _rubyContext.Inspect(result));
                 OutputBuffer.write(output);
@@ -117,12 +137,20 @@ end
                 _history.AppendText(string.Format("{0}\n# {1}", code, output));
 
             }
+            catch (Microsoft.Scripting.SyntaxErrorException e)
+            {
+                OutputBuffer.write(string.Format("Syntax error at line {1}: {0}\n", e.Message, e.Line));
+            }
             catch (Exception e)
             {
-                OutputBuffer.write(string.Format("ERROR => {0}\n",e.Message));
+                var exceptionService = _rubyEngine.GetService<ExceptionOperations>();
+                string message, typeName;
+                exceptionService.GetExceptionMessage(e, out message, out typeName);
+                OutputBuffer.write(string.Format("{0} ({1})\n", message, typeName));
             }
         }
-    
+
+
         /// <summary>
         /// When Ctrl-Enter is pressed, run the script code
         /// </summary>
@@ -130,19 +158,67 @@ end
         {
             _code.KeyDown += (se, args) =>
             {
-                if (args.Key == Key.LeftCtrl || args.Key == Key.RightCtrl)
-                    _isCtrlPressed = true;
-                if (_isCtrlPressed && args.Key == Key.Enter)
-                    RunCode(_code);
-                if (_isCtrlPressed && args.Key == Key.W)
-                    Output.Clear();                    
+                if(args.IsCtrl(Key.Enter))
+                    RunCode();
+                else if(args.IsCtrl(Key.W))
+                    Output.Clear();
+                else if(args.IsCtrl(Key.S))
+                    save_code(null, null);
+
             };
-            _code.KeyUp += (se, args) =>
+        }
+
+        //Save code buffer
+        private void save_code(object sender, RoutedEventArgs e)
+        {
+            // Configure save file dialog box
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = filename == null ? "command.rb" : filename; // Default file name
+            dlg.DefaultExt = ".rb"; // Default file extension
+            dlg.Filter = "Ruby code (.rb)|*.rb"; // Filter files by extension
+
+            // Process save file dialog box results
+            if (dlg.ShowDialog() == true)
             {
-                if (args.Key == Key.LeftCtrl || args.Key == Key.RightCtrl)
-                    _isCtrlPressed = false;
-            };
-        }    
+                // Save document
+                this.filename = dlg.FileName;
+                File.WriteAllText(this.filename, _code.Text);
+                this.Title = filename;
+            }
+
+        }
+
+        //Open rb file
+        private void open_code(object sender, RoutedEventArgs e)
+        {
+
+            // Configure open file dialog box
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.FileName = filename == null ? "command.rb" : filename; // Default file name
+            dlg.DefaultExt = ".rb"; // Default file extension
+            dlg.Filter = "Ruby code (.rb)|*.rb"; // Filter files by extension
+
+            // Process open file dialog box results
+            if (dlg.ShowDialog() == true)
+            {
+                // Open document
+                _code.Text = File.ReadAllText(dlg.FileName);
+            }
+
+        }
+
+        private static XDocument GetSettings()
+        {
+            //Whould be nice to use YAML instead!
+            string assemblyFolder = new FileInfo(typeof(RevitRubyShellApplication).Assembly.Location).DirectoryName;
+            string settingsFile = System.IO.Path.Combine(assemblyFolder, "RevitRubyShell.xml");
+            return XDocument.Load(settingsFile);
+        }
+
+        private void run_code(object sender, RoutedEventArgs e)
+        {
+            RunCode();
+        }       
     }
 
     /// <summary>
@@ -166,4 +242,30 @@ end
             }));
         }
     }
+
+    #region Extension Methods
+
+    public static class ExtensionMethods
+    {
+        public static bool IsCtrl(this KeyEventArgs keyEvent, Key value)
+        {
+            return keyEvent.KeyboardDevice.Modifiers == ModifierKeys.Control
+                && keyEvent.Key == value;
+        }
+
+        public static bool IsCtrlShift(this KeyEventArgs keyEvent, Key value)
+        {
+            return keyEvent.KeyboardDevice.Modifiers == ModifierKeys.Control
+                && keyEvent.KeyboardDevice.Modifiers == ModifierKeys.Shift
+                && keyEvent.Key == value;
+        }
+
+        public static bool Is(this KeyEventArgs keyEvent, Key value)
+        {
+            return keyEvent.KeyboardDevice.Modifiers == ModifierKeys.None
+                && keyEvent.Key == value;
+        }
+    }
+
+    #endregion
 }

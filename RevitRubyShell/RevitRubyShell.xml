@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RevitRubyShell>
+  <Commands>
+    <!-- a list of preconfigured commands -->
+    <Command name="Generate unplaced rooms" src="Z:\development\revit\place_rooms.rb"/>
+  </Commands>
+  <DefaultScript>
+<![CDATA[
+# Welcome to Ruby Shell!
+
+# All Ruby code typed here can be run by pressing
+# Ctrl-Enter. If you don't want to run everything,
+# just select the text you wan to run and press
+# the same key combination. Ctrl-W will clear the output.
+
+# You can use the special __revit__ variable to get hold of the Application object
+
+# This is nothing more than a Ruby interpreter:
+# Try the following; it will print to the output
+# window below the code:
+
+require 'RevitAPI'
+include Autodesk::Revit
+include Autodesk::Revit::Elements
+__revit__.active_document.elements(Room.to_clr_type, arr = ElementArray.new)
+arr.each do |room|
+  puts room.name
+end
+]]>  
+  </DefaultScript>
+</RevitRubyShell>

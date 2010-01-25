@@ -9,16 +9,31 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="0"/>
             <RowDefinition Height="2*"/>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" MinHeight="6" />
             <RowDefinition Height="1*"/>
             <RowDefinition Height="0"/>
         </Grid.RowDefinitions>
-        <StackPanel x:Name="_canvasControls" Margin="0,0,0,0" Grid.Row="0" Orientation="Horizontal">
-        </StackPanel>
         <GridSplitter x:Name="_editorToggle" ResizeDirection="Columns" Grid.RowSpan="4" Width="6" Background="#00ffffff" />
         <TabControl x:Name="_tabs" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="0,0,0,0" >
             <TabItem Header="Interactive">
-                <TextBox FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" />
+                <DockPanel>
+                    <ToolBarTray DockPanel.Dock="Top">
+                        <ToolBar>
+                            <Button Click="save_code" ToolTip="Save">
+                                <Image Source="disk_blue.ico" Height="16" Width="16"/>
+                            </Button>
+                            <Button Click="open_code" ToolTip="Open file">
+                                <Image Source="folder_out.ico" Height="16" Width="16"/>
+                            </Button>
+                            <Button Click="run_code" ToolTip="Execute (CTRL+ENTER)">
+                                <Image Source="media_play.ico" Height="16" Width="16"/>
+                            </Button>
+                        </ToolBar>
+                        <ToolBar x:Name="cmdToolbar" Header="Commands:" MinWidth="300">
+                        </ToolBar>
+                     </ToolBarTray>
+                    <TextBox FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" />
+                </DockPanel>
             </TabItem>
             <TabItem Header="History">
                 <TextBox FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_history" FontSize="12" IsReadOnly="True" />
@@ -45,7 +60,5 @@
         <TextBox Grid.Row="3" Grid.Column="1" TextWrapping="WrapWithOverflow"
                 VerticalScrollBarVisibility="Auto"
                 Name="_output" FontFamily="Consolas" FontSize="12" IsReadOnly="True" />
-        <StackPanel x:Name="_outputControls" Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
-        </StackPanel>
     </Grid>
 </Window>

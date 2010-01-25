@@ -1,5 +1,8 @@
 ﻿using System;
 using Autodesk.Revit;
+using System.Xml.Linq;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace RevitRubyShell
 {
@@ -14,14 +17,14 @@ namespace RevitRubyShell
 
         public IExternalApplication.Result OnStartup(ControlledApplication application)
         {
-            RibbonPanel ribbonPanel = application.CreateRibbonPanel("RevitRubyShell");
-            ribbonPanel.AddPushButton("RevitRubyShell", "Open Ruby Shell",
-                                      typeof(RevitRubyShellApplication).Assembly.Location,
+            RibbonPanel ribbonPanel = application.CreateRibbonPanel("Ruby scripting");
+            var pb = ribbonPanel.AddPushButton("RevitRubyShell", "Open Shell",
+                                       typeof(RevitRubyShellApplication).Assembly.Location,
                                       "RevitRubyShell.ShellCommand");
+            pb.LargeImage = new BitmapImage(new Uri(@"console.ico"));
             return IExternalApplication.Result.Succeeded;
             
         }
-
-        #endregion
+     #endregion
     }
 }

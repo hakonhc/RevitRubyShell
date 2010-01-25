@@ -119,6 +119,23 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="RevitRubyShell.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="media_play.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="disk_blue.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="folder_out.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="console.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
