@@ -21,9 +21,33 @@ namespace RevitRubyShell
             var pb = ribbonPanel.AddPushButton("RevitRubyShell", "Open Shell",
                                        typeof(RevitRubyShellApplication).Assembly.Location,
                                       "RevitRubyShell.ShellCommand");
-            pb.LargeImage = new BitmapImage(new Uri(@"console.ico"));
+            pb.LargeImage = GetImage("console-5.png");
             return IExternalApplication.Result.Succeeded;
             
+        }
+        private BitmapImage GetImage(string resourcePath)
+        {
+            var image = new BitmapImage();
+
+            string moduleName = this.GetType().Assembly.GetName().Name;
+            string resourceLocation =
+                string.Format("pack://application:,,,/{0};component/{1}", moduleName,
+                              resourcePath);
+
+            try
+            {
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                image.UriSource = new Uri(resourceLocation);
+                image.EndInit();
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Trace.WriteLine(e.ToString());
+            }
+
+            return image;
         }
      #endregion
     }
