@@ -63,7 +63,8 @@ namespace RevitRubyShell
                 _rubyContext = Ruby.GetExecutionContext(_rubyEngine);
                 _scope = _rubyEngine.CreateScope();
                 _scope.SetVariable("__revit__", _application);
-                _scope.SetVariable("__data__", data);
+                _scope.SetVariable("_app", _application);
+                _scope.SetVariable("_data", data);
 
                 // Cute little trick: warm up the Ruby engine by running some code on another thread:
                 new SThread.Thread(new SThread.ThreadStart(() => _rubyEngine.Execute("2 + 2", _scope))).Start();
