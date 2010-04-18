@@ -3,4 +3,8 @@
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files\Autodesk Revit Architecture 2010\Program\Revit.exe</StartProgram>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Program Files\Autodesk\Revit Architecture 2011\Program\Revit.exe</StartProgram>
+  </PropertyGroup>
 </Project>

@@ -13,7 +13,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Timers;
 using System.IO;
-using Autodesk.Revit;
 using System.Diagnostics;
 using SThread = System.Threading;
 using Microsoft.Scripting.Hosting;
@@ -44,10 +43,10 @@ namespace RevitRubyShell
         public ToolBar CommandToolbar { get { return cmdToolbar; } }
         #endregion
 
-        private readonly Autodesk.Revit.Application _application;
+        private readonly Autodesk.Revit.UI.UIApplication _application;
         private string filename;
 
-        public ShellWindow(ExternalCommandData data)
+        public ShellWindow(Autodesk.Revit.UI.ExternalCommandData data)
         {
             InitializeComponent();
             _application = data.Application;

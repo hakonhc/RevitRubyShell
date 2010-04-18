@@ -1,28 +1,31 @@
 ﻿using System;
-using Autodesk.Revit;
+using Autodesk.Revit.UI;
 using System.Xml.Linq;
 using System.IO;
 using System.Windows.Media.Imaging;
+using Autodesk.Revit.Attributes;
 
 namespace RevitRubyShell
 {
+    [Regeneration(RegenerationOption.Manual)]
+    [Transaction(TransactionMode.Manual)]
     class RevitRubyShellApplication : IExternalApplication
     {
         #region IExternalApplication Members
 
-        public IExternalApplication.Result OnShutdown(ControlledApplication application)
+        public Result OnShutdown(UIControlledApplication application)
         {
-            return IExternalApplication.Result.Succeeded;
+            return Result.Succeeded;
         }
 
-        public IExternalApplication.Result OnStartup(ControlledApplication application)
+        public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("Ruby scripting");
-            var pb = ribbonPanel.AddPushButton("RevitRubyShell", "Open Shell",
+            PushButton pushButton = ribbonPanel.AddItem(new PushButtonData("RevitRubyShell", "Open Shell",
                                        typeof(RevitRubyShellApplication).Assembly.Location,
-                                      "RevitRubyShell.ShellCommand");
-            pb.LargeImage = GetImage("console-5.png");
-            return IExternalApplication.Result.Succeeded;
+                                      "RevitRubyShell.ShellCommand")) as PushButton;
+            pushButton.LargeImage = GetImage("console-5.png");
+            return Result.Succeeded;
             
         }
         private BitmapImage GetImage(string resourcePath)

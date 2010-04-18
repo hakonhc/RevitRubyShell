@@ -12,9 +12,12 @@
 
 require 'RevitAPI'
 include Autodesk::Revit
-include Autodesk::Revit::Elements
-_app.active_document.elements(Room.to_clr_type, arr = ElementArray.new)
-arr.each do |room|
+include Autodesk::Revit::DB
+include Autodesk::Revit::DB::Architecture
+
+doc = _app.active_ui_document.document
+rooms = FilteredElementCollector.new(doc).WherePasses(RoomFilter.new).ToElements();
+rooms.each do |room|
   puts room.name
 end
 ]]>  
