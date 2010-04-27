@@ -14,7 +14,6 @@ using System.Windows.Shapes;
 using System.Timers;
 using System.IO;
 using System.Diagnostics;
-using SThread = System.Threading;
 using Microsoft.Scripting.Hosting;
 using IronRuby;
 using System.Xml.Linq;
@@ -27,11 +26,9 @@ namespace RevitRubyShell
 
         #region Running code
         public TextBoxBuffer OutputBuffer { get; internal set; }
-        private bool _isCtrlPressed;
         private ScriptEngine _rubyEngine;
-        public ScriptEngine RubyEngine { get { return _rubyEngine; } }
-        private IronRuby.Runtime.RubyContext _rubyContext;
         private ScriptScope _scope;
+        private IronRuby.Runtime.RubyContext _rubyContext;
         #endregion
 
         #region UI accessors
@@ -45,6 +42,7 @@ namespace RevitRubyShell
 
         private readonly Autodesk.Revit.UI.UIApplication _application;
         private string filename;
+        private RevitRubyShellApplication myapp;
 
         public ShellWindow(Autodesk.Revit.UI.ExternalCommandData data)
         {
@@ -53,63 +51,23 @@ namespace RevitRubyShell
 
             this.Loaded += (s, e) =>
             {
-                var defaultScripts = GetSettings().Root.Descendants("DefaultScript");
+                myapp = RevitRubyShellApplication.GetApplication(data); 
+                var defaultScripts = RevitRubyShellApplication.GetSettings().Root.Descendants("DefaultScript");
                 _code.Text = defaultScripts.Count() > 0 ? defaultScripts.First().Value.Replace("\n", "\r\n") : "";
                 OutputBuffer = new TextBoxBuffer(_output);
 
                 // Initialize IronRuby
-                _rubyEngine = Ruby.CreateEngine();
-                _rubyContext = Ruby.GetExecutionContext(_rubyEngine);
-                _scope = _rubyEngine.CreateScope();
-                _scope.SetVariable("__revit__", _application);
-                _scope.SetVariable("_app", _application);
+                _rubyEngine = myapp.RubyEngine;
+                _scope = RevitRubyShellApplication.GetApplication(data).RubyScope;
+                _rubyContext = (IronRuby.Runtime.RubyContext)Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(_rubyEngine);          
                 _scope.SetVariable("_data", data);
-
-                // Cute little trick: warm up the Ruby engine by running some code on another thread:
-                new SThread.Thread(new SThread.ThreadStart(() => _rubyEngine.Execute("2 + 2", _scope))).Start();
-
+                _scope.SetVariable("_app", data.Application);
                 // redirect stdout to the output window
-                _rubyContext.StandardOutput = OutputBuffer;
-
+                _rubyContext.StandardOutput = OutputBuffer;                
                 KeyBindings();
-                LoadCommands();
             };
         }
 
-
-        private void LoadCommands()
-        {
-            foreach (var commandNode in GetSettings().Root.Descendants("Command"))
-            {
-
-                var button = new Button();                
-                button.Tag = commandNode.Attribute("src").Value;
-                button.Content = commandNode.Attribute("name").Value;
-                button.Click += CommandClicked;
-                CommandToolbar.Items.Add(button);
-            }
-        }
-
-        void CommandClicked(object sender, EventArgs e)
-        {
-            string source;
-            try
-            {
-                var commandSrc = (string)(((Button)sender).Tag);
-                using (var reader = File.OpenText(commandSrc))
-                    source = reader.ReadToEnd();
-                var paths = new List<string>();
-                foreach (var s in _rubyEngine.GetSearchPaths())
-                    paths.Add(s);
-                paths.Add(System.IO.Path.GetDirectoryName(commandSrc));
-                _rubyEngine.SetSearchPaths(paths);
-                ExecuteCode(source);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString(), ex.Message);
-            }            
-        }
 
         /// <summary>
         /// Runs all code from a TextBox if there is no selection, otherwise
@@ -119,37 +77,19 @@ namespace RevitRubyShell
         public void RunCode()
         {
             string code = _code.SelectionLength > 0 ? _code.SelectedText : _code.Text;
-            ExecuteCode(code); 
-        }
-
-        private void ExecuteCode(string code)
-        {
-            try
+            string output = "";
+            bool result = myapp.ExecuteCode(code, ref output);
+            if (result)
             {
-                // Run the code
-                var result = _rubyEngine.Execute(code, _scope);
-
-                // write the result to the output window
-                var output = string.Format("=> {0}\n", _rubyContext.Inspect(result));
                 OutputBuffer.write(output);
-
                 // add the code to the history
                 _history.AppendText(string.Format("{0}\n# {1}", code, output));
-
             }
-            catch (Microsoft.Scripting.SyntaxErrorException e)
+            else
             {
-                OutputBuffer.write(string.Format("Syntax error at line {1}: {0}\n", e.Message, e.Line));
-            }
-            catch (Exception e)
-            {
-                var exceptionService = _rubyEngine.GetService<ExceptionOperations>();
-                string message, typeName;
-                exceptionService.GetExceptionMessage(e, out message, out typeName);
-                OutputBuffer.write(string.Format("{0} ({1})\n", message, typeName));
+                OutputBuffer.write(output);
             }
         }
-
 
         /// <summary>
         /// When Ctrl-Enter is pressed, run the script code
@@ -205,14 +145,6 @@ namespace RevitRubyShell
                 _code.Text = File.ReadAllText(dlg.FileName);
             }
 
-        }
-
-        private static XDocument GetSettings()
-        {
-            //Whould be nice to use YAML instead!
-            string assemblyFolder = new FileInfo(typeof(RevitRubyShellApplication).Assembly.Location).DirectoryName;
-            string settingsFile = System.IO.Path.Combine(assemblyFolder, "RevitRubyShell.xml");
-            return XDocument.Load(settingsFile);
         }
 
         private void run_code(object sender, RoutedEventArgs e)

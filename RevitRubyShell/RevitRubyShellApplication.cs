@@ -4,6 +4,11 @@ using System.Xml.Linq;
 using System.IO;
 using System.Windows.Media.Imaging;
 using Autodesk.Revit.Attributes;
+using System.Windows;
+using System.Collections.Generic;
+using Microsoft.Scripting.Hosting;
+using IronRuby;
+using SThread = System.Threading;
 
 namespace RevitRubyShell
 {
@@ -11,6 +16,14 @@ namespace RevitRubyShell
     [Transaction(TransactionMode.Manual)]
     class RevitRubyShellApplication : IExternalApplication
     {
+        private ScriptEngine _rubyEngine;
+        public ScriptEngine RubyEngine { get { return _rubyEngine; } }
+        private ScriptScope _scope;
+        public ScriptScope RubyScope { get { return _scope; } }
+
+        private ComboBox _CB;
+        public ComboBoxMember CurrentCommand { get { return _CB.Current; } }
+
         #region IExternalApplication Members
 
         public Result OnShutdown(UIControlledApplication application)
@@ -20,14 +33,26 @@ namespace RevitRubyShell
 
         public Result OnStartup(UIControlledApplication application)
         {
+            //Create panel
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("Ruby scripting");
             PushButton pushButton = ribbonPanel.AddItem(new PushButtonData("RevitRubyShell", "Open Shell",
                                        typeof(RevitRubyShellApplication).Assembly.Location,
                                       "RevitRubyShell.ShellCommand")) as PushButton;
             pushButton.LargeImage = GetImage("console-5.png");
-            return Result.Succeeded;
+            LoadCommands(ribbonPanel);
             
+            //Start ruby interpreter
+            _rubyEngine = Ruby.CreateEngine();
+            _scope = _rubyEngine.CreateScope();
+            // Cute little trick: warm up the Ruby engine by running some code on another thread:
+            new SThread.Thread(new SThread.ThreadStart(() => _rubyEngine.Execute("2 + 2", _scope))).Start();
+            
+            return Result.Succeeded;
         }
+        
+        #endregion
+        
+        #region App Icon handling
         private BitmapImage GetImage(string resourcePath)
         {
             var image = new BitmapImage();
@@ -52,6 +77,85 @@ namespace RevitRubyShell
 
             return image;
         }
-     #endregion
+
+        #endregion
+
+        #region Commands
+        private void LoadCommands(RibbonPanel panel)
+        {
+            ComboBoxData cbData = new ComboBoxData("commands");
+            cbData.ToolTip = "Choose a spesific script to run";            
+            
+            PushButtonData pbData = new PushButtonData("RunCommand", "Run Command",
+                                        typeof(RevitRubyShellApplication).Assembly.Location,
+                                       "RevitRubyShell.RunCommand");
+            IList<RibbonItem> stackedItems = panel.AddStackedItems(cbData, pbData);
+            _CB = stackedItems[0] as ComboBox;
+            PushButton pb = stackedItems[1] as PushButton;
+            pb.Image = GetImage("media_play.png"); 
+            _CB.AddItem(new ComboBoxMemberData("None", "[Choose Command]"));
+            foreach (var commandNode in GetSettings().Root.Descendants("Command"))
+            {
+                ComboBoxMemberData cboxMemData = new ComboBoxMemberData(commandNode.Attribute("src").Value, commandNode.Attribute("name").Value);
+                cboxMemData.ToolTip = commandNode.Attribute("src").Value;
+                _CB.AddItem(cboxMemData);
+            }
+        }
+
+        void cb_CurrentChanged(object sender, Autodesk.Revit.UI.Events.ComboBoxCurrentChangedEventArgs e)
+        {
+            if(e.NewValue.Name != "None")
+                MessageBox.Show(e.NewValue.Name);
+        }
+      
+        public static XDocument GetSettings()
+        {
+            //Whould be nice to use YAML instead!
+            string assemblyFolder = new FileInfo(typeof(RevitRubyShellApplication).Assembly.Location).DirectoryName;
+            string settingsFile = System.IO.Path.Combine(assemblyFolder, "RevitRubyShell.xml");
+            return XDocument.Load(settingsFile);
+        }
+
+        public static RevitRubyShellApplication GetApplication(ExternalCommandData commandData)
+        {
+            //Get the externalApp
+            ExternalApplicationArray apps = commandData.Application.LoadedApplications;
+            foreach (IExternalApplication app in apps)
+            {
+                if (app is RevitRubyShellApplication)
+                {
+                    return (RevitRubyShellApplication) app;
+                }
+            }
+            return null;
+        }
+
+        public bool ExecuteCode(string code, ref string output)
+        {
+            try
+            {
+                // Run the code
+                var result = _rubyEngine.Execute(code, _scope);
+                // write the result to the output window
+                output = string.Format("=> {0}\n", ((IronRuby.Runtime.RubyContext)Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(_rubyEngine)).Inspect(result));
+                return true;              
+            }
+            catch (Microsoft.Scripting.SyntaxErrorException e)
+            {
+                output = string.Format("Syntax error at line {1}: {0}\n", e.Message, e.Line);
+            }
+            catch (Exception e)
+            {
+                var exceptionService = _rubyEngine.GetService<ExceptionOperations>();
+                string message, typeName;
+                exceptionService.GetExceptionMessage(e, out message, out typeName);
+                output = string.Format("{0} ({1})\n", message, typeName);                
+            }
+            return false;
+        }
+
+
+        #endregion
+
     }
 }
