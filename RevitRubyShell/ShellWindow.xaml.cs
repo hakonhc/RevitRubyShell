@@ -37,7 +37,6 @@ namespace RevitRubyShell
         public TextBox Code { get { return _code; } }
         public GridSplitter EditorToggle { get { return _editorToggle; } }
         public GridSplitter ConsoleSplitter { get { return _consoleSplitter; } }
-        public ToolBar CommandToolbar { get { return cmdToolbar; } }
         #endregion
 
         private readonly Autodesk.Revit.UI.UIApplication _application;

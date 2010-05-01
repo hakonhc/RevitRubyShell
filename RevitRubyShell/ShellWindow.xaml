@@ -29,9 +29,7 @@
                                 <Image Source="media_play.ico" Height="16" Width="16"/>
                             </Button>
                         </ToolBar>
-                        <ToolBar x:Name="cmdToolbar" Header="Commands:" MinWidth="300">
-                        </ToolBar>
-                     </ToolBarTray>
+                    </ToolBarTray>
                     <TextBox Style="{DynamicResource TextStyle}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" />
                 </DockPanel>
             </TabItem>
