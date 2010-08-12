@@ -125,7 +125,7 @@
   <ItemGroup>
     <Resource Include="media_play.png" />
     <Content Include="RevitRubyShell.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

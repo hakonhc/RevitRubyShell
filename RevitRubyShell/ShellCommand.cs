@@ -7,13 +7,16 @@ namespace RevitRubyShell
     [Regeneration(RegenerationOption.Manual)]
     [Transaction(TransactionMode.Manual)]
     public class ShellCommand : IExternalCommand
-    {    
+    {
+        private ShellWindow win;
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            var gui = new ShellWindow(commandData);
-            gui.Show();
-            gui.BringIntoView();
+            win = new ShellWindow(commandData);
+            win.Show();
+            win.Focus();
             return Result.Succeeded;
         }
-    }
+
+    } 
 }

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <RevitRubyShell>
   <Commands>
-    <!-- a list of preconfigured commands -->
+    <!-- a list of preconfigured commands 
     <Command name="Generate unplaced rooms" src="C:\Users\hakonhc\revitscript\place_rooms.rb"/>
     <Command name="Swap number column in room schedule" src="C:\Users\hakonhc\revitscript\switch_room_number.rb"/>
     <Command name="Export room images" src="C:\Users\hakonhc\revitscript\export_image.rb"/>
     <Command name="Import rooms to drofus" src="C:\Users\hakonhc\revitscript\import_rooms.rb"/>
+    -->
   </Commands>
   <DefaultScript>
 <![CDATA[

@@ -34,7 +34,7 @@ namespace RevitRubyShell
         #region UI accessors
         public TextBox History { get { return _history; } }
         public TextBox Output { get { return _output; } }
-        public TextBox Code { get { return _code; } }
+        public RichTextBox Code { get { return _code; } }
         public GridSplitter EditorToggle { get { return _editorToggle; } }
         public GridSplitter ConsoleSplitter { get { return _consoleSplitter; } }
         #endregion
@@ -52,7 +52,7 @@ namespace RevitRubyShell
             {
                 myapp = RevitRubyShellApplication.GetApplication(data); 
                 var defaultScripts = RevitRubyShellApplication.GetSettings().Root.Descendants("DefaultScript");
-                _code.Text = defaultScripts.Count() > 0 ? defaultScripts.First().Value.Replace("\n", "\r\n") : "";
+                _code.SetText(defaultScripts.Count() > 0 ? defaultScripts.First().Value.Replace("\n", "\r\n") : "");
                 OutputBuffer = new TextBoxBuffer(_output);
 
                 // Initialize IronRuby
@@ -75,7 +75,7 @@ namespace RevitRubyShell
         /// <param name="t"></param>
         public void RunCode()
         {
-            string code = _code.SelectionLength > 0 ? _code.SelectedText : _code.Text;
+            string code = _code.GetText();
             string output = "";
             bool result = myapp.ExecuteCode(code, ref output);
             if (result)
@@ -121,7 +121,7 @@ namespace RevitRubyShell
             {
                 // Save document
                 this.filename = dlg.FileName;
-                File.WriteAllText(this.filename, _code.Text);
+                File.WriteAllText(this.filename, _code.GetText());
                 this.Title = filename;
             }
 
@@ -141,7 +141,7 @@ namespace RevitRubyShell
             if (dlg.ShowDialog() == true)
             {
                 // Open document
-                _code.Text = File.ReadAllText(dlg.FileName);
+                _code.SetText(File.ReadAllText(dlg.FileName));
             }
 
         }
@@ -149,7 +149,8 @@ namespace RevitRubyShell
         private void run_code(object sender, RoutedEventArgs e)
         {
             RunCode();
-        }       
+        }
+       
     }
 
     /// <summary>
@@ -196,6 +197,21 @@ namespace RevitRubyShell
             return keyEvent.KeyboardDevice.Modifiers == ModifierKeys.None
                 && keyEvent.Key == value;
         }
+
+        public static void SetText(this RichTextBox rtb, string value)
+        {
+            rtb.Document.Blocks.Clear();
+            rtb.AppendText(value);
+        }
+
+        public static string GetText(this RichTextBox rtb)
+        {
+            if(!rtb.Selection.IsEmpty)
+                return rtb.Selection.Text;
+            TextRange textRange = new TextRange(rtb.Document.ContentStart, rtb.Document.ContentEnd);
+            return textRange.Text;
+
+        }    
     }
 
     #endregion
