@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitRubyShell", "RevitRubyShell\RevitRubyShell.csproj", "{7D338F72-25C9-4008-B1A1-E858BFE719A4}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup1\Setup1.vdproj", "{A09A483F-2315-4209-977E-FDD51F7F5E35}"

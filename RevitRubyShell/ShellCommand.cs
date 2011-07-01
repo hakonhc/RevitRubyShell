@@ -13,8 +13,7 @@ namespace RevitRubyShell
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             win = new ShellWindow(commandData);
-            win.Show();
-            win.Focus();
+            win.ShowDialog();
             return Result.Succeeded;
         }
 
