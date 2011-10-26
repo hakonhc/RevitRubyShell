@@ -45,7 +45,7 @@ namespace RevitRubyShellInstaller
                 }
                 if (app == null)
                 {
-                    app = new RevitAddInApplication("RevitRubyShell", pluginFile, APP_GUID, APP_CLASS);
+                    app = new RevitAddInApplication("RevitRubyShell", pluginFile, APP_GUID, APP_CLASS,"NOSYK");
                     manifest.AddInApplications.Add(app);
                 }
                 else
