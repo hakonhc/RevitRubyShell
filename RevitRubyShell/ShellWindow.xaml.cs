@@ -77,17 +77,21 @@ namespace RevitRubyShell
         {
             string code = _code.GetText();
             string output = "";
-            bool result = myapp.ExecuteCode(code, ref output);
-            if (result)
-            {
-                OutputBuffer.write(output);
-                // add the code to the history
-                _history.AppendText(string.Format("{0}\n# {1}", code, output));
-            }
-            else
-            {
-                OutputBuffer.write(output);
-            }
+            ;
+            RevitRubyShellApplication.EnqueueTask((app) => {
+                bool result = myapp.ExecuteCode(code, ref output);
+                if (result)
+                {
+                    OutputBuffer.write(output);
+                    // add the code to the history
+                    _history.AppendText(string.Format("{0}\n# {1}", code, output));
+                }
+                else
+                {
+                    OutputBuffer.write(output);
+                }
+            });
+            
         }
 
         /// <summary>

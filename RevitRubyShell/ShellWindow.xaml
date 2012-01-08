@@ -31,12 +31,17 @@
                         </ToolBar>
                     </ToolBarTray>
                     <!--TextBox Style="{DynamicResource TextStyle}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" /-->
-                    <RichTextBox Foreground="#FF6600" Background="Black" FontSize="12" FontFamily="Consolas"  Name="_code">
+                    <RichTextBox Foreground="Brown" Background="White" FontSize="13" FontFamily="Consolas"  Name="_code">
                         <RichTextBox.Resources>
                             <Style TargetType="{x:Type Paragraph}">
                                 <Setter Property="Margin" Value="0"/>
                             </Style>
                         </RichTextBox.Resources>
+                        <!--FlowDocument>
+                            <Paragraph>
+                                <Run FontSize="18" FontWeight="Bold">Welcome to RevitRubyShell</Run>
+                            </Paragraph>
+                        </FlowDocument-->
                     </RichTextBox>
                 </DockPanel>
             </TabItem>
@@ -49,7 +54,7 @@
                         <Paragraph>
                             <Run FontSize="18" FontWeight="Bold">Welcome to RevitRubyShell</Run>
                             <LineBreak />
-                            <Run FontStyle="Italic">Håkon Clausen / Nosyko AS, version 0.2</Run>
+                            <Run FontStyle="Italic">Håkon Clausen, version 0.3</Run>
                         </Paragraph>
                         <Paragraph>
                             RevitRubyShell lets you execute Ruby code in the Autodesk Revit API. 
@@ -63,12 +68,8 @@
                         </Paragraph>
                         <Paragraph>
                             Use the special _app variable to get hold of the Revit Application object.
-                        </Paragraph>
-                        <Paragraph>
-                            In addition, you could use the configuration XML file (RevitRubyShell.xml) to often used commands/scripts to the toolbar.
-                        </Paragraph>
-                        <Paragraph>Enjoy!</Paragraph>
-                        
+                        </Paragraph>                        
+                        <Paragraph>Enjoy!</Paragraph>                        
                     </FlowDocument>
                 </RichTextBox>
             </TabItem>

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Microsoft.Scripting.Hosting;
 using IronRuby;
 using SThread = System.Threading;
+using Autodesk.Revit.UI.Events;
 
 namespace RevitRubyShell
 {
@@ -16,14 +17,16 @@ namespace RevitRubyShell
     [Transaction(TransactionMode.Manual)]
     class RevitRubyShellApplication : IExternalApplication
     {
+        //Task queue for executing script
+        private static Queue<Action<UIApplication>> tasks;
+
+        //Ironruby
         private ScriptEngine _rubyEngine;
-        public ScriptEngine RubyEngine { get { return _rubyEngine; } }
         private ScriptScope _scope;
+    
+        public ScriptEngine RubyEngine { get { return _rubyEngine; } }        
         public ScriptScope RubyScope { get { return _scope; } }
-
-        private ComboBox _CB;
-        public ComboBoxMember CurrentCommand { get { return _CB.Current; } }
-
+      
         #region IExternalApplication Members
 
         public Result OnShutdown(UIControlledApplication application)
@@ -39,14 +42,17 @@ namespace RevitRubyShell
                                        typeof(RevitRubyShellApplication).Assembly.Location,
                                       "RevitRubyShell.ShellCommand")) as PushButton;
             pushButton.LargeImage = GetImage("console-5.png");
-            LoadCommands(ribbonPanel);
             
             //Start ruby interpreter
             _rubyEngine = Ruby.CreateEngine();
             _scope = _rubyEngine.CreateScope();
             // Cute little trick: warm up the Ruby engine by running some code on another thread:
             new SThread.Thread(new SThread.ThreadStart(() => _rubyEngine.Execute("2 + 2", _scope))).Start();
-            
+
+            //Init ideling 
+            tasks = new Queue<Action<UIApplication>>();
+            application.Idling += OnIdling;
+
             return Result.Succeeded;
         }
         
@@ -80,34 +86,7 @@ namespace RevitRubyShell
 
         #endregion
 
-        #region Commands
-        private void LoadCommands(RibbonPanel panel)
-        {
-            ComboBoxData cbData = new ComboBoxData("commands");
-            cbData.ToolTip = "Choose a spesific script to run";            
-            
-            PushButtonData pbData = new PushButtonData("RunCommand", "Run Command",
-                                        typeof(RevitRubyShellApplication).Assembly.Location,
-                                       "RevitRubyShell.RunCommand");
-            IList<RibbonItem> stackedItems = panel.AddStackedItems(cbData, pbData);
-            _CB = stackedItems[0] as ComboBox;
-            PushButton pb = stackedItems[1] as PushButton;
-            pb.Image = GetImage("media_play.png"); 
-            _CB.AddItem(new ComboBoxMemberData("None", "[Choose Command]"));
-            foreach (var commandNode in GetSettings().Root.Descendants("Command"))
-            {
-                ComboBoxMemberData cboxMemData = new ComboBoxMemberData(commandNode.Attribute("src").Value, commandNode.Attribute("name").Value);
-                cboxMemData.ToolTip = commandNode.Attribute("src").Value;
-                _CB.AddItem(cboxMemData);
-            }
-        }
-
-        void cb_CurrentChanged(object sender, Autodesk.Revit.UI.Events.ComboBoxCurrentChangedEventArgs e)
-        {
-            if(e.NewValue.Name != "None")
-                MessageBox.Show(e.NewValue.Name);
-        }
-      
+        #region Commands        
         public static XDocument GetSettings()
         {
             //Whould be nice to use YAML instead!
@@ -128,6 +107,14 @@ namespace RevitRubyShell
                 }
             }
             return null;
+        }
+
+        public static void EnqueueTask(Action<UIApplication> task)
+        {
+            lock (tasks)
+            {
+                tasks.Enqueue(task);
+            }
         }
 
         public bool ExecuteCode(string code, ref string output)
@@ -152,6 +139,19 @@ namespace RevitRubyShell
                 output = string.Format("{0} ({1})\n", message, typeName);                
             }
             return false;
+        }
+
+        private void OnIdling(object sender, IdlingEventArgs e)
+        {
+            UIApplication uiapp = sender as UIApplication; 
+            lock (tasks)
+            {
+                if (tasks.Count > 0)
+                {
+                    Action<UIApplication> task = tasks.Dequeue();
+                    task(uiapp);                   
+                }
+            }
         }
 
 
