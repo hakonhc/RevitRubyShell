@@ -239,8 +239,8 @@
     <None Include="RevitRubyShellInstaller_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="RevitRubyShell.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="..\RevitRubyShell\RevitRubyShell.xml">
+      <Link>RevitRubyShell.xml</Link>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
