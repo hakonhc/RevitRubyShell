@@ -1,29 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Timers;
-using System.IO;
-using System.Diagnostics;
 using Microsoft.Scripting.Hosting;
-using IronRuby;
-using System.Xml.Linq;
 
 namespace RevitRubyShell
 {
-
     public partial class ShellWindow : Window
     {
-
         #region Running code
         public TextBoxBuffer OutputBuffer { get; internal set; }
         private ScriptEngine _rubyEngine;
@@ -47,24 +35,39 @@ namespace RevitRubyShell
         {
             InitializeComponent();
             _application = data.Application;
+            myapp = RevitRubyShellApplication.GetApplication(data); 
 
             this.Loaded += (s, e) =>
-            {
-                myapp = RevitRubyShellApplication.GetApplication(data); 
-                var defaultScripts = RevitRubyShellApplication.GetSettings().Root.Descendants("DefaultScript");
-                _code.SetText(defaultScripts.Count() > 0 ? defaultScripts.First().Value.Replace("\n", "\r\n") : "");
-                OutputBuffer = new TextBoxBuffer(_output);
+                {                    
+                    var defaultScripts = RevitRubyShellApplication.GetSettings().Root.Descendants("DefaultScript");
+                    var lastCode = myapp.LastCode;
+                    if (string.IsNullOrEmpty(lastCode))
+                    {
+                        _code.SetText(defaultScripts.Count() > 0 ? defaultScripts.First().Value.Replace("\n", "\r\n") : "");
+                    }
+                    else
+                    {
+                        _code.SetText(lastCode);
+                    }
 
-                // Initialize IronRuby
-                _rubyEngine = myapp.RubyEngine;
-                _scope = RevitRubyShellApplication.GetApplication(data).RubyScope;
-                _rubyContext = (IronRuby.Runtime.RubyContext)Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(_rubyEngine);          
-                _scope.SetVariable("_data", data);
-                _scope.SetVariable("_app", data.Application);
-                // redirect stdout to the output window
-                _rubyContext.StandardOutput = OutputBuffer;                
-                KeyBindings();
-            };
+                    OutputBuffer = new TextBoxBuffer(_output);
+
+                    // Initialize IronRuby
+                    _rubyEngine = myapp.RubyEngine;
+                    _scope = myapp.RubyScope;
+                    _rubyContext = (IronRuby.Runtime.RubyContext)Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(_rubyEngine);          
+                    _scope.SetVariable("_data", data);
+                    _scope.SetVariable("_app", data.Application);
+
+                    // redirect stdout to the output window
+                    _rubyContext.StandardOutput = OutputBuffer;                
+                    KeyBindings();
+                };
+
+            this.Closed += (s, e) =>
+                {
+                    myapp.LastCode = _code.GetText();
+                };
         }
 
 
@@ -77,21 +80,18 @@ namespace RevitRubyShell
         {
             string code = _code.GetText();
             string output = "";
-            ;
-            RevitRubyShellApplication.EnqueueTask((app) => {
-                bool result = myapp.ExecuteCode(code, ref output);
-                if (result)
-                {
-                    OutputBuffer.write(output);
-                    // add the code to the history
-                    _history.AppendText(string.Format("{0}\n# {1}", code, output));
-                }
-                else
-                {
-                    OutputBuffer.write(output);
-                }
-            });
-            
+      
+            bool result = myapp.ExecuteCode(code, ref output);
+            if (result)
+            {
+                OutputBuffer.write(output);
+                // add the code to the history
+                _history.AppendText(string.Format("{0}\n# {1}", code, output));
+            }
+            else
+            {
+                OutputBuffer.write(output);
+            }      
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace RevitRubyShell
                 // Save document
                 this.filename = dlg.FileName;
                 File.WriteAllText(this.filename, _code.GetText());
-                this.Title = filename;
+                this.Title = "RevitRubyShell " + this.filename;
             }
 
         }
@@ -146,8 +146,9 @@ namespace RevitRubyShell
             {
                 // Open document
                 _code.SetText(File.ReadAllText(dlg.FileName));
-            }
-
+                this.filename = dlg.FileName;
+                this.Title = "RevitRubyShell " + this.filename;
+            }      
         }
 
         private void run_code(object sender, RoutedEventArgs e)

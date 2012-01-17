@@ -1,15 +1,15 @@
 ﻿using System;
-using Autodesk.Revit.UI;
-using System.Xml.Linq;
-using System.IO;
-using System.Windows.Media.Imaging;
-using Autodesk.Revit.Attributes;
-using System.Windows;
 using System.Collections.Generic;
-using Microsoft.Scripting.Hosting;
-using IronRuby;
-using SThread = System.Threading;
+using System.IO;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using System.Xml.Linq;
+using Autodesk.Revit.Attributes;
+using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Events;
+using IronRuby;
+using Microsoft.Scripting.Hosting;
+using SThread = System.Threading;
 
 namespace RevitRubyShell
 {
@@ -17,9 +17,6 @@ namespace RevitRubyShell
     [Transaction(TransactionMode.Manual)]
     class RevitRubyShellApplication : IExternalApplication
     {
-        //Task queue for executing script
-        private static Queue<Action<UIApplication>> tasks;
-
         //Ironruby
         private ScriptEngine _rubyEngine;
         private ScriptScope _scope;
@@ -48,11 +45,7 @@ namespace RevitRubyShell
             _scope = _rubyEngine.CreateScope();
             // Cute little trick: warm up the Ruby engine by running some code on another thread:
             new SThread.Thread(new SThread.ThreadStart(() => _rubyEngine.Execute("2 + 2", _scope))).Start();
-
-            //Init ideling 
-            tasks = new Queue<Action<UIApplication>>();
-            application.Idling += OnIdling;
-
+        
             return Result.Succeeded;
         }
         
@@ -85,8 +78,7 @@ namespace RevitRubyShell
         }
 
         #endregion
-
-        #region Commands        
+   
         public static XDocument GetSettings()
         {
             //Whould be nice to use YAML instead!
@@ -94,6 +86,8 @@ namespace RevitRubyShell
             string settingsFile = System.IO.Path.Combine(assemblyFolder, "RevitRubyShell.xml");
             return XDocument.Load(settingsFile);
         }
+
+        public string LastCode { get; set; }
 
         public static RevitRubyShellApplication GetApplication(ExternalCommandData commandData)
         {
@@ -106,15 +100,8 @@ namespace RevitRubyShell
                     return (RevitRubyShellApplication) app;
                 }
             }
-            return null;
-        }
 
-        public static void EnqueueTask(Action<UIApplication> task)
-        {
-            lock (tasks)
-            {
-                tasks.Enqueue(task);
-            }
+            return null;
         }
 
         public bool ExecuteCode(string code, ref string output)
@@ -138,24 +125,8 @@ namespace RevitRubyShell
                 exceptionService.GetExceptionMessage(e, out message, out typeName);
                 output = string.Format("{0} ({1})\n", message, typeName);                
             }
+
             return false;
         }
-
-        private void OnIdling(object sender, IdlingEventArgs e)
-        {
-            UIApplication uiapp = sender as UIApplication; 
-            lock (tasks)
-            {
-                if (tasks.Count > 0)
-                {
-                    Action<UIApplication> task = tasks.Dequeue();
-                    task(uiapp);                   
-                }
-            }
-        }
-
-
-        #endregion
-
     }
 }
