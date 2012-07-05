@@ -54,7 +54,7 @@
                         <Paragraph>
                             <Run FontSize="18" FontWeight="Bold">Welcome to RevitRubyShell</Run>
                             <LineBreak />
-                            <Run FontStyle="Italic">Håkon Clausen, version 0.3</Run>
+                            <Run FontStyle="Italic">Håkon Clausen, version 0.4</Run>
                         </Paragraph>
                         <Paragraph>
                             RevitRubyShell lets you execute Ruby code in the Autodesk Revit API. 
