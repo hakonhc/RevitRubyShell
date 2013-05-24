@@ -31,7 +31,7 @@
                         </ToolBar>
                     </ToolBarTray>
                     <!--TextBox Style="{DynamicResource TextStyle}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" /-->
-                    <RichTextBox Foreground="Brown" Background="White" FontSize="13" FontFamily="Consolas"  Name="_code">
+                    <RichTextBox Foreground="Brown" Background="White" FontSize="13" FontFamily="Consolas"  Name="_code" AcceptsTab="True" AcceptsReturn="True">
                         <RichTextBox.Resources>
                             <Style TargetType="{x:Type Paragraph}">
                                 <Setter Property="Margin" Value="0"/>
