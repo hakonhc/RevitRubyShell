@@ -17,6 +17,8 @@ namespace RevitRubyShell
     [Transaction(TransactionMode.Manual)]
     class RevitRubyShellApplication : IExternalApplication
     {
+        public static RevitRubyShellApplication RevitRubyShell;
+
         //Ironruby
         private ScriptEngine _rubyEngine;
         private ScriptScope _scope;
@@ -35,16 +37,22 @@ namespace RevitRubyShell
         {
             //Create panel
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("Ruby scripting");
-            PushButton pushButton = ribbonPanel.AddItem(new PushButtonData("RevitRubyShell", "Open Shell",
-                                       typeof(RevitRubyShellApplication).Assembly.Location,
-                                      "RevitRubyShell.ShellCommand")) as PushButton;
+            PushButton pushButton = ribbonPanel.AddItem(
+                new PushButtonData(
+                    "RevitRubyShell", 
+                    "Open Shell",
+                    typeof(RevitRubyShellApplication).Assembly.Location,
+                    "RevitRubyShell.ShellCommand")) as PushButton;
+
             pushButton.LargeImage = GetImage("console-5.png");
             
             //Start ruby interpreter
             _rubyEngine = Ruby.CreateEngine();
             _scope = _rubyEngine.CreateScope();
             // Cute little trick: warm up the Ruby engine by running some code on another thread:
-            new SThread.Thread(new SThread.ThreadStart(() => _rubyEngine.Execute("2 + 2", _scope))).Start();
+            new SThread.Thread(() => _rubyEngine.Execute("2 + 2", _scope)).Start();
+
+            RevitRubyShellApplication.RevitRubyShell = this;
         
             return Result.Succeeded;
         }
@@ -83,34 +91,19 @@ namespace RevitRubyShell
         {
             //Whould be nice to use YAML instead!
             string assemblyFolder = new FileInfo(typeof(RevitRubyShellApplication).Assembly.Location).DirectoryName;
-            string settingsFile = System.IO.Path.Combine(assemblyFolder, "RevitRubyShell.xml");
+            string settingsFile = Path.Combine(assemblyFolder, "RevitRubyShell.xml");
             return XDocument.Load(settingsFile);
         }
 
         public string LastCode { get; set; }
-
-        public static RevitRubyShellApplication GetApplication(ExternalCommandData commandData)
-        {
-            //Get the externalApp
-            ExternalApplicationArray apps = commandData.Application.LoadedApplications;
-            foreach (IExternalApplication app in apps)
-            {
-                if (app is RevitRubyShellApplication)
-                {
-                    return (RevitRubyShellApplication) app;
-                }
-            }
-
-            return null;
-        }
-
-        public bool ExecuteCode(string code, ref string output)
+  
+        public bool ExecuteCode(string code, out string output)
         {
             try
             {
                 // Run the code
                 var result = _rubyEngine.Execute(code, _scope);
-                // write the result to the output window
+                // Write the result to the output window
                 output = string.Format("=> {0}\n", ((IronRuby.Runtime.RubyContext)Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(_rubyEngine)).Inspect(result));
                 return true;              
             }

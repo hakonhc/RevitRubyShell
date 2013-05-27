@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Shapes;
 using Microsoft.Scripting.Hosting;
 
 namespace RevitRubyShell
@@ -27,15 +26,13 @@ namespace RevitRubyShell
         public GridSplitter ConsoleSplitter { get { return _consoleSplitter; } }
         #endregion
 
-        private readonly Autodesk.Revit.UI.UIApplication _application;
         private string filename;
         private RevitRubyShellApplication myapp;
 
         public ShellWindow(Autodesk.Revit.UI.ExternalCommandData data)
         {
             InitializeComponent();
-            _application = data.Application;
-            myapp = RevitRubyShellApplication.GetApplication(data); 
+            myapp = RevitRubyShellApplication.RevitRubyShell;
 
             this.Loaded += (s, e) =>
                 {                    
@@ -75,22 +72,21 @@ namespace RevitRubyShell
         /// Runs all code from a TextBox if there is no selection, otherwise
         /// just runs the selection.
         /// </summary>
-        /// <param name="t"></param>
         public void RunCode()
         {
-            string code = _code.GetText();
-            string output = "";
+            var code = _code.GetText();
+            string output;
       
-            bool result = myapp.ExecuteCode(code, ref output);
+            bool result = myapp.ExecuteCode(code, out output);
             if (result)
             {
-                OutputBuffer.write(output);
+                OutputBuffer.Write(output);
                 // add the code to the history
                 _history.AppendText(string.Format("{0}\n# {1}", code, output));
             }
             else
             {
-                OutputBuffer.write(output);
+                OutputBuffer.Write(output);
             }      
         }
 
@@ -115,8 +111,8 @@ namespace RevitRubyShell
         private void save_code(object sender, RoutedEventArgs e)
         {
             // Configure save file dialog box
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = filename == null ? "command.rb" : filename; // Default file name
+            var dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = filename ?? "command.rb"; // Default file name
             dlg.DefaultExt = ".rb"; // Default file extension
             dlg.Filter = "Ruby code (.rb)|*.rb"; // Filter files by extension
 
@@ -136,8 +132,8 @@ namespace RevitRubyShell
         {
 
             // Configure open file dialog box
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.FileName = filename == null ? "command.rb" : filename; // Default file name
+            var dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.FileName = filename ?? "command.rb"; // Default file name
             dlg.DefaultExt = ".rb"; // Default file extension
             dlg.Filter = "Ruby code (.rb)|*.rb"; // Filter files by extension
 
@@ -163,14 +159,14 @@ namespace RevitRubyShell
     /// </summary>
     public class TextBoxBuffer
     {
-        private TextBox box;
+        private readonly TextBox box;
 
         public TextBoxBuffer(TextBox t)
         {
             box = t;
         }
 
-        public void write(string str)
+        public void Write(string str)
         {
             box.Dispatcher.BeginInvoke((Action)(() =>
             {
