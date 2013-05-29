@@ -1,6 +1,6 @@
-<Window x:Class="RevitRubyShell.ShellWindow"
+<Page x:Class="RevitRubyShell.ShellWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Background="White"
         Title="RevitRubyShell" Height="500" Width="780" FontSize="12">
         <Grid>
         <Grid.ColumnDefinitions>
@@ -13,8 +13,7 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="0"/>
         </Grid.RowDefinitions>
-        <GridSplitter x:Name="_editorToggle" ResizeDirection="Columns" Grid.RowSpan="4" Width="6" Background="#00ffffff" />
-        <TabControl x:Name="_tabs" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="0,0,0,0" >
+        <TabControl x:Name="_tabs" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="0,0,0,0" Background="White"> 
             <TabItem Header="Interactive">
                 <DockPanel>
                     <ToolBarTray DockPanel.Dock="Top">
@@ -30,19 +29,8 @@
                             </Button>
                         </ToolBar>
                     </ToolBarTray>
-                    <!--TextBox Style="{DynamicResource TextStyle}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" /-->
-                    <RichTextBox Foreground="Brown" Background="White" FontSize="13" FontFamily="Consolas"  Name="_code" AcceptsTab="True" AcceptsReturn="True">
-                        <RichTextBox.Resources>
-                            <Style TargetType="{x:Type Paragraph}">
-                                <Setter Property="Margin" Value="0"/>
-                            </Style>
-                        </RichTextBox.Resources>
-                        <!--FlowDocument>
-                            <Paragraph>
-                                <Run FontSize="18" FontWeight="Bold">Welcome to RevitRubyShell</Run>
-                            </Paragraph>
-                        </FlowDocument-->
-                    </RichTextBox>
+                    <!--TextBox Style="{DynamicResource TextStyle}" HorizontalScrollBarVisibility="Auto"  Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" /-->
+                    <TextBox Foreground="Brown" Background="White" FontSize="13" FontFamily="Consolas"  Name="_code" AcceptsTab="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                 </DockPanel>
             </TabItem>
             <TabItem Header="History">
@@ -54,7 +42,7 @@
                         <Paragraph>
                             <Run FontSize="18" FontWeight="Bold">Welcome to RevitRubyShell</Run>
                             <LineBreak />
-                            <Run FontStyle="Italic">Håkon Clausen, version 0.4</Run>
+                            <Run FontStyle="Italic">Håkon Clausen, version 0.5 for Revit 2014</Run>
                         </Paragraph>
                         <Paragraph>
                             RevitRubyShell lets you execute Ruby code in the Autodesk Revit API. 
@@ -82,4 +70,4 @@
                 VerticalScrollBarVisibility="Auto"
                 Name="_output" FontFamily="Consolas" FontSize="12" IsReadOnly="True" />
     </Grid>
-</Window>
+</Page>

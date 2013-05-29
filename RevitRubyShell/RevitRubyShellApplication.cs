@@ -6,7 +6,6 @@ using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Events;
 using IronRuby;
 using Microsoft.Scripting.Hosting;
 using SThread = System.Threading;
@@ -25,6 +24,10 @@ namespace RevitRubyShell
     
         public ScriptEngine RubyEngine { get { return _rubyEngine; } }        
         public ScriptScope RubyScope { get { return _scope; } }
+
+        public static Guid DockGuid = new Guid("{C584FF49-4869-4704-BB18-820F7F13F640}");
+
+        public Queue<Action<UIApplication>> Queue = new Queue<Action<UIApplication>>(); 
       
         #region IExternalApplication Members
 
@@ -36,8 +39,8 @@ namespace RevitRubyShell
         public Result OnStartup(UIControlledApplication application)
         {
             //Create panel
-            RibbonPanel ribbonPanel = application.CreateRibbonPanel("Ruby scripting");
-            PushButton pushButton = ribbonPanel.AddItem(
+            var ribbonPanel = application.CreateRibbonPanel("Ruby scripting");
+            var pushButton = ribbonPanel.AddItem(
                 new PushButtonData(
                     "RevitRubyShell", 
                     "Open Shell",
@@ -53,12 +56,36 @@ namespace RevitRubyShell
             new SThread.Thread(() => _rubyEngine.Execute("2 + 2", _scope)).Start();
 
             RevitRubyShellApplication.RevitRubyShell = this;
+
+            application.Idling += (sender, args) =>
+                {
+                    var uiapp = sender as UIApplication; 
+                    lock (this.Queue)
+                    {
+                        if (this.Queue.Count <= 0) return;
+
+                        var task = this.Queue.Dequeue();
+
+                        // execute the task!
+                        try
+                        {
+                            task(uiapp);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message, "Error");
+                        }
+                    }
+                };
+
+            var win = new ShellWindow();       
+            application.RegisterDockablePane(new DockablePaneId(DockGuid), "RevitRubyShell", win);
         
             return Result.Succeeded;
         }
         
         #endregion
-        
+
         #region App Icon handling
         private BitmapImage GetImage(string resourcePath)
         {
@@ -90,8 +117,8 @@ namespace RevitRubyShell
         public static XDocument GetSettings()
         {
             //Whould be nice to use YAML instead!
-            string assemblyFolder = new FileInfo(typeof(RevitRubyShellApplication).Assembly.Location).DirectoryName;
-            string settingsFile = Path.Combine(assemblyFolder, "RevitRubyShell.xml");
+            var assemblyFolder = new FileInfo(typeof(RevitRubyShellApplication).Assembly.Location).DirectoryName;
+            var settingsFile = Path.Combine(assemblyFolder, "RevitRubyShell.xml");
             return XDocument.Load(settingsFile);
         }
 

@@ -10,8 +10,8 @@ namespace RevitRubyShell
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            var win = new ShellWindow(commandData);
-            win.ShowDialog();
+            var dp = commandData.Application.GetDockablePane(new DockablePaneId(RevitRubyShellApplication.DockGuid));
+            dp.Show();
             return Result.Succeeded;
         }
     } 
