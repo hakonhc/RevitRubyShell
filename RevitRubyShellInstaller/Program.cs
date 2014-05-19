@@ -43,7 +43,7 @@ namespace RevitRubyShellInstaller
             foreach (RevitProduct product in RevitProductUtility.GetAllInstalledRevitProducts())
             {
                 var addinFile = product.CurrentUserAddInFolder + "\\rubyshell.addin";
-                var pluginFile = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\RevitRubyShell.dll";
+                var pluginFile = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + string.Format("\\RevitRubyShell{0}.dll", product.Version);
 
                 RevitAddInManifest manifest;
                 if (File.Exists(addinFile))
