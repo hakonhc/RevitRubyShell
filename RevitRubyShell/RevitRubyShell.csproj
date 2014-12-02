@@ -209,4 +209,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(FileWrites)" DestinationFolder="..\RevitRubyShellInstaller\bin\$(Configuration)" />
+  </Target>
 </Project>

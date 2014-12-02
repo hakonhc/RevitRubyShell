@@ -15,11 +15,7 @@ namespace RevitRubyShellInstaller
         {
             try
             {
-                if (install())
-                {
-                    MessageBox.Show("RevitRubyShell was successully installed ", "RevitRubyShell");
-                }
-                else
+                if (!install())
                 {
                     MessageBox.Show("RevitRubyShell was not installed. No valid Revit 2011-> installation was found", "RevitRubyShell");
                 }
@@ -45,6 +41,12 @@ namespace RevitRubyShellInstaller
                 var addinFile = product.CurrentUserAddInFolder + "\\rubyshell.addin";
                 var pluginFile = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + string.Format("\\RevitRubyShell{0}.dll", product.Version);
 
+                if (!File.Exists(pluginFile))
+                {
+                    MessageBox.Show(string.Format("{0} is not supported by this version of RevitRubyShell", product.Version), "RevitRubyShell", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
                 RevitAddInManifest manifest;
                 if (File.Exists(addinFile))
                 {
@@ -60,7 +62,9 @@ namespace RevitRubyShellInstaller
                 foreach (RevitAddInApplication a in manifest.AddInApplications)
                 {
                     if (a.AddInId == APP_GUID)
-                        app = a;
+                    { 
+                        app = a; 
+                    }
                 }
 
                 if (app == null)
@@ -82,6 +86,8 @@ namespace RevitRubyShellInstaller
                 {
                     manifest.Save();
                 }
+
+                MessageBox.Show(string.Format("RevitRubyShell for {0} was successully installed ", product.Version), "RevitRubyShell");
             }
 
             return true;
