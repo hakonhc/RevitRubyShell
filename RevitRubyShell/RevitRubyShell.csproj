@@ -11,6 +11,7 @@
     <RootNamespace>RevitRubyShell</RootNamespace>
     <AssemblyName Condition=" '$(Platform)'=='2014' ">RevitRubyShellRevit2014</AssemblyName>
     <AssemblyName Condition=" '$(Platform)'=='2015' ">RevitRubyShellRevit2015</AssemblyName>
+    <AssemblyName Condition=" '$(Platform)'=='2016' ">RevitRubyShellRevit2016</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -38,6 +39,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -63,25 +65,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>RevitRubyShellInstaller_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|2014'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|2015'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|2014'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|2015'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+  </PropertyGroup>  
   <ItemGroup>
     <Reference Include="IronRuby">
       <HintPath>..\lib\IronRuby.dll</HintPath>
@@ -111,7 +95,13 @@
     <Reference Include="RevitAPIUI" Condition=" '$(Platform)'=='2015' ">
       <HintPath>..\lib\RevitAPIUI_2015.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
+    <Reference Include="RevitAPI" Condition=" '$(Platform)'=='2016' ">
+      <HintPath>..\lib\RevitAPI_2016.dll</HintPath>
+    </Reference>    
+    <Reference Include="RevitAPIUI" Condition=" '$(Platform)'=='2016' ">
+      <HintPath>..\lib\RevitAPIUI_2016.dll</HintPath>      
+    </Reference>    
+    <Reference Include="System" />    
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>

@@ -15,14 +15,7 @@ namespace RevitRubyShellInstaller
         {
             try
             {
-                if (install())
-                {
-                    MessageBox.Show("RevitRubyShell was successully installed ", "RevitRubyShell");
-                }
-                else
-                {
-                    MessageBox.Show("RevitRubyShell was not installed. No valid Revit 2011-> installation was found", "RevitRubyShell");
-                }
+                MessageBox.Show(Install() ? "RevitRubyShell was successully installed " : "RevitRubyShell was not installed. No valid Revit 2011-> installation was found", "RevitRubyShell");
             }
             catch (Exception e)
             {
@@ -30,48 +23,40 @@ namespace RevitRubyShellInstaller
             }
         }
 
-        private static Guid APP_GUID = new Guid("8c90ec3d-b0ef-4b89-be76-96aab8bcd465");
-        private const string APP_CLASS = "RevitRubyShell.RevitRubyShellApplication";
+        private static readonly Guid AppGuid = new Guid("8c90ec3d-b0ef-4b89-be76-96aab8bcd465");
+        private const string AppClass = "RevitRubyShell.RevitRubyShellApplication";
 
-        public static bool install()
+        public static bool Install()
         {
             if (RevitProductUtility.GetAllInstalledRevitProducts().Count == 0)
             {
                 return false;
             }
 
-            foreach (RevitProduct product in RevitProductUtility.GetAllInstalledRevitProducts())
+            foreach (var product in RevitProductUtility.GetAllInstalledRevitProducts())
             {
+                if (product.Version == RevitVersion.Unknown) continue;
                 var addinFile = product.CurrentUserAddInFolder + "\\rubyshell.addin";
                 var pluginFile = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + string.Format("\\RevitRubyShell{0}.dll", product.Version);
-
-                RevitAddInManifest manifest;
-                if (File.Exists(addinFile))
-                {
-                    manifest = AddInManifestUtility.GetRevitAddInManifest(addinFile);
-                }
-                else
-                {
-                    manifest = new RevitAddInManifest();
-                }
+                var manifest = File.Exists(addinFile) ? AddInManifestUtility.GetRevitAddInManifest(addinFile) : new RevitAddInManifest();
 
                 //Search manifest for app
                 RevitAddInApplication app = null;
                 foreach (RevitAddInApplication a in manifest.AddInApplications)
                 {
-                    if (a.AddInId == APP_GUID)
+                    if (a.AddInId == AppGuid)
                         app = a;
                 }
 
                 if (app == null)
                 {
-                    app = new RevitAddInApplication("RevitRubyShell", pluginFile, APP_GUID, APP_CLASS,"NOSYK");
+                    app = new RevitAddInApplication("RevitRubyShell", pluginFile, AppGuid, AppClass,"NOSYK");
                     manifest.AddInApplications.Add(app);
                 }
                 else
                 {
                     app.Assembly = pluginFile;
-                    app.FullClassName = APP_CLASS;
+                    app.FullClassName = AppClass;
                 }
 
                 if (manifest.Name == null)

@@ -13,7 +13,6 @@ using SThread = System.Threading;
 namespace RevitRubyShell
 {
     [Regeneration(RegenerationOption.Manual)]
-    [Transaction(TransactionMode.Manual)]
     class RevitRubyShellApplication : IExternalApplication
     {
         public static RevitRubyShellApplication RevitRubyShell;
