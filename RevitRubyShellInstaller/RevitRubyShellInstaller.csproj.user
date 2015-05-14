@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PublishUrlHistory>z:\www\RevitRubyShell\|publish\|http://www.hclausen.net/RevitRubyShell/</PublishUrlHistory>
+    <PublishUrlHistory>publish\|z:\www\RevitRubyShell\|http://www.hclausen.net/RevitRubyShell/</PublishUrlHistory>
     <InstallUrlHistory>http://www.hclausen.net/RevitRubyShell/</InstallUrlHistory>
     <SupportUrlHistory>
     </SupportUrlHistory>

@@ -1,0 +1,8 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="Release">
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2014" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2015" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShellInstaller\RevitRubyShellInstaller.csproj" Properties="Configuration=Debug;Platform=2015" Targets="Publish" StopOnFirstFailure="true" />		
+    </Target>	
+</Project>
+	
