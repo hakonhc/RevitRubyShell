@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">2017</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{7D338F72-25C9-4008-B1A1-E858BFE719A4}</ProjectGuid>
@@ -12,7 +12,8 @@
     <AssemblyName Condition=" '$(Platform)'=='2014' ">RevitRubyShellRevit2014</AssemblyName>
     <AssemblyName Condition=" '$(Platform)'=='2015' ">RevitRubyShellRevit2015</AssemblyName>
     <AssemblyName Condition=" '$(Platform)'=='2016' ">RevitRubyShellRevit2016</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <AssemblyName Condition=" '$(Platform)'=='2017' ">RevitRubyShellRevit2017</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -65,7 +66,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>RevitRubyShellInstaller_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="IronRuby">
       <HintPath>..\lib\IronRuby.dll</HintPath>
@@ -97,11 +98,17 @@
     </Reference>
     <Reference Include="RevitAPI" Condition=" '$(Platform)'=='2016' ">
       <HintPath>..\lib\RevitAPI_2016.dll</HintPath>
-    </Reference>    
+    </Reference>
     <Reference Include="RevitAPIUI" Condition=" '$(Platform)'=='2016' ">
-      <HintPath>..\lib\RevitAPIUI_2016.dll</HintPath>      
-    </Reference>    
-    <Reference Include="System" />    
+      <HintPath>..\lib\RevitAPIUI_2016.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPI" Condition=" '$(Platform)'=='2017' ">
+      <HintPath>..\lib\RevitAPI_2017.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPIUI" Condition=" '$(Platform)'=='2017' ">
+      <HintPath>..\lib\RevitAPIUI_2017.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>

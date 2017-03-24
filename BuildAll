@@ -3,7 +3,8 @@
 		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2014" Targets="Build" StopOnFirstFailure="true" />
 		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2015" Targets="Build" StopOnFirstFailure="true" />
 		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2016" Targets="Build" StopOnFirstFailure="true" />
-		<MSBuild Projects="RevitRubyShellInstaller\RevitRubyShellInstaller.csproj" Properties="Configuration=Debug;Platform=2016" Targets="Publish" StopOnFirstFailure="true" />		
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2017" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShellInstaller\RevitRubyShellInstaller.csproj" Properties="Configuration=Debug;Platform=2017" Targets="Publish" StopOnFirstFailure="true" />		
     </Target>	
 </Project>
 	
