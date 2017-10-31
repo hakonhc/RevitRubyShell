@@ -6,8 +6,6 @@
 # Try the following; it will print to the output
 # window below the code:
 
-load_assembly 'RevitAPI'
-load_assembly 'RevitAPIUI'
 include Autodesk::Revit
 include Autodesk::Revit::UI
 include Autodesk::Revit::DB
@@ -20,4 +18,12 @@ rooms.each do |room|
 end
 ]]>  
   </DefaultScript>
+
+  <OnLoad>
+    <![CDATA[
+load_assembly 'RevitAPI'
+load_assembly 'RevitAPIUI'
+
+]]>
+  </OnLoad>
 </RevitRubyShell>

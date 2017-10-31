@@ -13,22 +13,22 @@ namespace RevitRubyShell
 {
     public partial class ShellWindow : IDockablePaneProvider
     {
-        #region Running code
-        public TextBoxBuffer OutputBuffer { get; internal set; }
-        private ScriptEngine _rubyEngine;
-        private IronRuby.Runtime.RubyContext _rubyContext;
-        #endregion
 
-        #region UI accessors
-        public TextBox History { get { return _history; } }
-        public TextBox Output { get { return _output; } }
-        public TextBox Code { get { return _code; } }
-        public GridSplitter ConsoleSplitter { get { return _consoleSplitter; } }
-        #endregion
-
+        private ScriptEngine rubyEngine;
+        private IronRuby.Runtime.RubyContext rubyContext;
         private string filename;
         private RevitRubyShellApplication myapp;
 
+        public TextBox History => history;
+
+        public TextBox Output => output;
+
+        public TextBox Code => code;
+
+        public GridSplitter ConsoleSplitter => consoleSplitter;
+
+        public TextBoxBuffer OutputBuffer { get; internal set; }
+                
         public ShellWindow()
         {
             InitializeComponent();
@@ -47,16 +47,15 @@ namespace RevitRubyShell
                         Code.Text = lastCode;
                     }
 
-                    OutputBuffer = new TextBoxBuffer(_output);
+                    OutputBuffer = new TextBoxBuffer(output);
 
                     // Initialize IronRuby
-                    _rubyEngine = myapp.RubyEngine;
-                    _rubyContext = (IronRuby.Runtime.RubyContext)Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(_rubyEngine);          
+                    rubyEngine = myapp.RubyEngine;
+                    rubyContext = (IronRuby.Runtime.RubyContext)Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(rubyEngine);          
                     
 
                     // redirect stdout to the output window
-                    _rubyContext.StandardOutput = OutputBuffer;                
-                    KeyBindings();
+                    rubyContext.StandardOutput = OutputBuffer;                
                 };
 
             this.Unloaded += (s, e) =>
@@ -82,30 +81,13 @@ namespace RevitRubyShell
                     {
                         OutputBuffer.Write(output);
                         // add the code to the history
-                        _history.AppendText(string.Format("{0}\n# {1}", code, output));
+                        history.AppendText(string.Format("{0}\n# {1}", code, output));
                     }
                     else
                     {
                         OutputBuffer.Write(output);
                     }
                 });
-        }
-
-        /// <summary>
-        /// When Ctrl-Enter is pressed, run the script code
-        /// </summary>
-        private void KeyBindings()
-        {
-            _code.KeyDown += (se, args) =>
-            {
-                if(args.IsCtrl(Key.Enter))
-                    RunCode();
-                else if(args.IsCtrl(Key.W))
-                    Output.Clear();
-                else if(args.IsCtrl(Key.S))
-                    save_code(null, null);
-
-            };
         }
 
         //Save code buffer
@@ -141,7 +123,7 @@ namespace RevitRubyShell
             if (dlg.ShowDialog() == true)
             {
                 // Open document
-                _code.Text = File.ReadAllText(dlg.FileName);
+                code.Text = File.ReadAllText(dlg.FileName);
                 this.filename = dlg.FileName;
                 this.Title = "RevitRubyShell " + this.filename;
             }      
@@ -159,6 +141,25 @@ namespace RevitRubyShell
                 {
                     DockPosition = DockPosition.Bottom
                 };
+        }
+
+        private void _code_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.IsCtrl(Key.Enter))
+            {
+                RunCode();
+                e.Handled = true;
+            }
+            else if (e.IsCtrl(Key.W))
+            {
+                Output.Clear();
+                e.Handled = true;
+            }
+            else if (e.IsCtrl(Key.S))
+            {
+                save_code(null, null);
+                e.Handled = true;
+            }
         }
     }
 
@@ -183,8 +184,6 @@ namespace RevitRubyShell
             }));
         }
     }
-
-    #region Extension Methods
 
     public static class ExtensionMethods
     {
@@ -222,6 +221,4 @@ namespace RevitRubyShell
 
         }    
     }
-
-    #endregion
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
+using System.Linq;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using IronRuby;
@@ -51,8 +52,15 @@ namespace RevitRubyShell
             //Start ruby interpreter
             _rubyEngine = Ruby.CreateEngine();
             _scope = _rubyEngine.CreateScope();
-            // Cute little trick: warm up the Ruby engine by running some code on another thread:
-            new SThread.Thread(() => _rubyEngine.Execute("2 + 2", _scope)).Start();
+
+            // Warm up the Ruby engine by running some code on another thread:
+            new SThread.Thread(
+                () => 
+                {
+                    var defaultScripts = GetSettings().Root.Descendants("OnLoad").ToArray();
+                    var script = defaultScripts.Any() ? defaultScripts.First().Value.Replace("\n", "\r\n") : "";
+                    _rubyEngine.Execute(script, _scope);
+                } ).Start();
 
             RevitRubyShellApplication.RevitRubyShell = this;
 
@@ -115,7 +123,7 @@ namespace RevitRubyShell
    
         public static XDocument GetSettings()
         {
-            //Whould be nice to use YAML instead!
+            // Whould be nice to use YAML instead!
             var assemblyFolder = new FileInfo(typeof(RevitRubyShellApplication).Assembly.Location).DirectoryName;
             var settingsFile = Path.Combine(assemblyFolder, "RevitRubyShell.xml");
             return XDocument.Load(settingsFile);

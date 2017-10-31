@@ -30,19 +30,19 @@
                         </ToolBar>
                     </ToolBarTray>
                     <!--TextBox Style="{DynamicResource TextStyle}" HorizontalScrollBarVisibility="Auto"  Name="_code" FontSize="12" AcceptsReturn="True" AcceptsTab="True" /-->
-                    <TextBox Foreground="Brown" Background="White" FontSize="13" FontFamily="Consolas"  Name="_code" AcceptsTab="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                    <TextBox Foreground="Brown" Background="White" FontSize="13" FontFamily="Consolas"  Name="code" AcceptsTab="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" KeyDown="_code_KeyDown"/>
                 </DockPanel>
             </TabItem>
             <TabItem Header="History">
-                <TextBox FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="_history" FontSize="12" IsReadOnly="True" />
+                <TextBox FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Name="history" FontSize="12" IsReadOnly="True" />
             </TabItem>
             <TabItem Header="Help and About">
                 <RichTextBox FontFamily="Calibri" FontSize="12" IsReadOnly="True" IsDocumentEnabled="True" VerticalScrollBarVisibility="Auto">
                     <FlowDocument>
                         <Paragraph>
-                            <Run FontSize="18" FontWeight="Bold">Welcome to RevitRubyShell</Run>
+                            <Run FontSize="18" FontWeight="Bold">Welcome to RevitRubyShell for Revit 2014/2015/2016/2017/2018</Run>
                             <LineBreak />
-                            <Run FontStyle="Italic">Håkon Clausen, version 0.5 for Revit 2014/2015</Run>
+                            <Run FontStyle="Italic">Håkon Clausen, 2017</Run>
                         </Paragraph>
                         <Paragraph>
                             RevitRubyShell lets you execute Ruby code in the Autodesk Revit API. 
@@ -62,12 +62,12 @@
                 </RichTextBox>
             </TabItem>
         </TabControl>
-        <GridSplitter x:Name="_consoleSplitter" 
+        <GridSplitter x:Name="consoleSplitter" 
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       Grid.Column="1" Grid.Row="2" Width="Auto" Height="6" Background="#00ffffff"
                       ResizeDirection="Rows" />
         <TextBox Grid.Row="3" Grid.Column="1" TextWrapping="WrapWithOverflow"
                 VerticalScrollBarVisibility="Auto"
-                Name="_output" FontFamily="Consolas" FontSize="12" IsReadOnly="True" />
+                Name="output" FontFamily="Consolas" FontSize="12" IsReadOnly="True" />
     </Grid>
 </Page>
