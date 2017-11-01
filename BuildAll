@@ -1,10 +1,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Target Name="Release">
-		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2014" Targets="Build" StopOnFirstFailure="true" />
-		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2015" Targets="Build" StopOnFirstFailure="true" />
-		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2016" Targets="Build" StopOnFirstFailure="true" />
-		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Debug;Platform=2017" Targets="Build" StopOnFirstFailure="true" />
-		<MSBuild Projects="RevitRubyShellInstaller\RevitRubyShellInstaller.csproj" Properties="Configuration=Debug;Platform=2017" Targets="Publish" StopOnFirstFailure="true" />		
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Release;Platform=2014" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Release;Platform=2015" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Release;Platform=2016" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Release;Platform=2017" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShell\RevitRubyShell.csproj" Properties="Configuration=Release;Platform=2018" Targets="Build" StopOnFirstFailure="true" />
+		<MSBuild Projects="RevitRubyShellInstaller\RevitRubyShellInstaller.csproj" Properties="Configuration=Release;Platform=2018" Targets="Publish" StopOnFirstFailure="true" />		
     </Target>	
 </Project>
 	

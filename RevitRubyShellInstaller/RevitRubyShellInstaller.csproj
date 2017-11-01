@@ -43,7 +43,7 @@
     <PublisherName>Nosyko AS</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>14</ApplicationRevision>
+    <ApplicationRevision>17</ApplicationRevision>
     <ApplicationVersion>1.3.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -78,7 +78,7 @@
     <AssemblyOriginatorKeyFile>RevitRubyShellInstaller_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <RevitPlugin Include="bin\debug\RevitRubyShellRevit2014.dll; bin\debug\RevitRubyShellRevit2015.dll; bin\debug\RevitRubyShellRevit2016.dll">
+    <RevitPlugin Include="bin\$(Configuration)\RevitRubyShellRevit2014.dll; bin\$(Configuration)\RevitRubyShellRevit2015.dll; bin\$(Configuration)\RevitRubyShellRevit2016.dll; bin\$(Configuration)\RevitRubyShellRevit2017.dll; bin\$(Configuration)\RevitRubyShellRevit2018.dll">
       <Visible>False</Visible>
     </RevitPlugin>
     <Reference Include="IronRuby.Libraries, Version=1.1.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -155,7 +155,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PublishFile Include="bin\Debug\RevitRubyShellRevit2014.dll">
+    <PublishFile Include="bin\Release\RevitRubyShellRevit2014.dll">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -165,7 +165,7 @@
       <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
-    <PublishFile Include="bin\Debug\RevitRubyShellRevit2015.dll">
+    <PublishFile Include="bin\Release\RevitRubyShellRevit2015.dll">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -175,7 +175,7 @@
       <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
-    <PublishFile Include="bin\Debug\RevitRubyShellRevit2016.dll">
+    <PublishFile Include="bin\Release\RevitRubyShellRevit2016.dll">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -185,7 +185,7 @@
       <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
-    <PublishFile Include="bin\Debug\RevitRubyShellRevit2017.dll">
+    <PublishFile Include="bin\Release\RevitRubyShellRevit2017.dll">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -195,7 +195,7 @@
       <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
-    <PublishFile Include="bin\Debug\RevitRubyShellRevit2018.dll">
+    <PublishFile Include="bin\Release\RevitRubyShellRevit2018.dll">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -284,6 +284,16 @@
       <PublishState>Include</PublishState>
       <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
+    </PublishFile>
+    <PublishFile Include="RevitRubyShellRevit2018">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="UIFrameworkServices">
       <Visible>False</Visible>
